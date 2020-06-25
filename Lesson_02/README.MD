@@ -91,7 +91,6 @@ quux    2
 `hdfs dfs  -copyFromLocal /students/student5_4/test_file/* /student5_4/test_file`.
 
 Запустим jar-файл:
-
 ```
 hadoop jar $YARN_EXAMPLES/hadoop-streaming.jar \
  -file /students/student5_4/python_mapreduce/mapper.py \
@@ -101,9 +100,34 @@ hadoop jar $YARN_EXAMPLES/hadoop-streaming.jar \
  -input /student5_4/test_file/4300-0.txt \
  -output /student5_4/test_file/output
 ```
-
 В ходе выполнения команды появилось приложение `application_1592839005008_0020`:
 ![Скриншот CLOUDERA MANAGER](https://github.com/Mellok14/Hadoop/raw/master/Lesson_02/application_1592839005008_0020.png)
 
+Проверим результат работы:
+```
+hdfs dfs -ls /student5_4/test_file/output
 
+Found 7 items
+-rw-r--r--   3 student5_4 supergroup          0 2020-06-25 18:31 /student5_4/test_file/output/_SUCCESS
+-rw-r--r--   3 student5_4 supergroup      87964 2020-06-25 18:31 /student5_4/test_file/output/part-00000
+-rw-r--r--   3 student5_4 supergroup      89331 2020-06-25 18:31 /student5_4/test_file/output/part-00001
+-rw-r--r--   3 student5_4 supergroup      88506 2020-06-25 18:31 /student5_4/test_file/output/part-00002
+-rw-r--r--   3 student5_4 supergroup      89230 2020-06-25 18:31 /student5_4/test_file/output/part-00003
+-rw-r--r--   3 student5_4 supergroup      88674 2020-06-25 18:31 /student5_4/test_file/output/part-00004
+-rw-r--r--   3 student5_4 supergroup      86978 2020-06-25 18:31 /student5_4/test_file/output/part-00005
+```
+```
+hdfs dfs -cat /student5_4/test_file/output/part-00000
+
+#фрагмент ответа
+—U.     1
+—Up     1
+—Wait   4
+—Wait.  2
+—Was    8
+—We’ll  5
+—Which  4
+—Whom   1
+```
+Программа отработала корректно.
 
