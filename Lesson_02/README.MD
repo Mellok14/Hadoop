@@ -11,29 +11,21 @@
 Создадим и заполним два файла mapper.py и reducer.py в директории `/students/student5_4/python_mapreduce`:
 ```
 cat mapper.py
+
 #!/usr/bin/env python
-"""mapper.py"""
 
 import sys
 
-# input comes from STDIN (standard input)
 for line in sys.stdin:
-    # remove leading and trailing whitespace
     line = line.strip()
-    # split the line into words
     words = line.split()
-    # increase counters
     for word in words:
-        # write the results to STDOUT (standard output);
-        # what we output here will be the input for the
-        # Reduce step, i.e. the input for reducer.py
-        #
-        # tab-delimited; the trivial word count is 1
         print '%s\t%s' % (word, 1)
 ```
 ```
 cat reducer.py
-"""reducer.py"""
+
+#!/usr/bin/env python
 
 from operator import itemgetter
 import sys
@@ -42,34 +34,24 @@ current_word = None
 current_count = 0
 word = None
 
-# input comes from STDIN
 for line in sys.stdin:
-    # remove leading and trailing whitespace
     line = line.strip()
 
-    # parse the input we got from mapper.py
     word, count = line.split('\t', 1)
 
-    # convert count (currently a string) to int
     try:
         count = int(count)
     except ValueError:
-        # count was not a number, so silently
-        # ignore/discard this line
         continue
 
-    # this IF-switch only works because Hadoop sorts map output
-    # by key (here: word) before it is passed to the reducer
     if current_word == word:
         current_count += count
     else:
         if current_word:
-            # write result to STDOUT
             print '%s\t%s' % (current_word, current_count)
         current_count = count
         current_word = word
 
-# do not forget to output the last word if needed!
 if current_word == word:
     print '%s\t%s' % (current_word, current_count)
 ```    
@@ -80,3 +62,48 @@ chmod +x ./mapper.py
 chmod +x ./reducer.py
 ```
 Проверим работоспособность файлов на тестовых дыннх:
+
+```
+echo 'foo foo quux labs foo bar quux' | ./mapper.py
+
+foo     1
+foo     1
+quux    1
+labs    1
+foo     1
+bar     1
+quux    1
+```
+```
+echo "foo foo quux labs foo bar quux" | ./mapper.py | sort -k1,1 | ./reducer.py
+
+bar     1
+foo     3
+labs    1
+quux    2
+```
+Все работает, теперь можно приступать к загрузке тестовых данных. Сначала загрузим данные на локальную машину (для примера возьмем одну книгу):
+
+`wget http://www.gutenberg.org/files/4300/4300-0.txt`.
+
+Загрузим текстовый файл на HDFS Hadoop:
+
+`hdfs dfs  -copyFromLocal /students/student5_4/test_file/* /student5_4/test_file`.
+
+Запустим jar-файл:
+
+```
+hadoop jar $YARN_EXAMPLES/hadoop-streaming.jar \
+ -file /students/student5_4/python_mapreduce/mapper.py \
+ -mapper /students/student5_4/python_mapreduce/mapper.py \
+ -file /students/student5_4/python_mapreduce/reducer.py \
+ -reducer /students/student5_4/python_mapreduce/reducer.py \
+ -input /student5_4/test_file/4300-0.txt \
+ -output /student5_4/test_file/output
+```
+
+В ходе выполнения команды появилось приложение `application_1592839005008_0020`:
+![Скриншот CLOUDERA MANAGER](https://github.com/Mellok14/Hadoop/raw/master/Lesson_02/application_1592839005008_0020.png)
+
+
+
