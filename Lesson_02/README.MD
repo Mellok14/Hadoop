@@ -8,8 +8,8 @@
 `export YARN_EXAMPLES=/opt/cloudera/parcels/CDH-5.16.2-1.cdh5.16.2.p0.8/lib/hadoop-mapreduce`.
 
 Создадим и заполним два файла mapper.py и reducer.py в директории `/students/student5_4/python_mapreduce`:
-
-`cat mapper.py
+```
+cat mapper.py
 #!/usr/bin/env python
 """mapper.py"""
 
@@ -28,9 +28,10 @@ for line in sys.stdin:
         # Reduce step, i.e. the input for reducer.py
         #
         # tab-delimited; the trivial word count is 1
-        print '%s\t%s' % (word, 1)`
-       
-`cat reducer.py
+        print '%s\t%s' % (word, 1)
+```
+```
+cat reducer.py
 """reducer.py"""
 
 from operator import itemgetter
@@ -69,11 +70,12 @@ for line in sys.stdin:
 
 # do not forget to output the last word if needed!
 if current_word == word:
-    print '%s\t%s' % (current_word, current_count)`
+    print '%s\t%s' % (current_word, current_count)
+```    
     
 Изменим права для этих вайлов, во избежание ошибок:
-
-`chmod +x ./mapper.py
-chmod +x ./reducer.py`
-
+```
+chmod +x ./mapper.py
+chmod +x ./reducer.py
+```
 Проверим работоспособность файлов на тестовых дыннх:
