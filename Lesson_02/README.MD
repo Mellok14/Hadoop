@@ -1,4 +1,5 @@
 **1.[Задание на 5++] Повторить вот этот пример https://www.michael-noll.com/tutorials/writing-an-hadoop-mapreduce-program-in-python/ **
+
 Сначала найдём jar-файл:
 
 `find /opt -name "hadoop-streaming.jar"`.
