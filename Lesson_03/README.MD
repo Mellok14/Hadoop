@@ -109,3 +109,58 @@ group by measure;
 | Truck Containers Full       | 177190288.0  |
 | Trucks                      | 253654160.0  |
 
+**6. Сделать любой отчет по загруженным данным используя JOIN.**
+
+```
+select s.state, sum(bc.value), bc.measure as sum_value
+from student5_4.border_crossing_v1 bc
+left join student5_4.state s
+on bc.state = s.id
+WHERE bc.measure = 'Trucks'
+group by s.state, bc.measure
+order by sum_value limit 1;
+```
+Реpультат выполнения запроса:
+
+| s.state | _c1      | sum_value |
+|---------|----------|-----------|
+| Alaska  | 235497.0 | Trucks    |
+
+**7.[Продвинутый вариант] Сделать все вышеперечисленное с использованием JSON SerDe. Подсказка: см в сторону команды «ADD JAR»**
+
+Пытался сделать: создал таблицу, загрузил в нее данные без ошибок. Но при выполнении любого select запроса - очень длинный лог ошибки.
+Применял get_json_object - не помогло.
+
+```
+ADD JAR /opt/cloudera/parcels/CDH-5.16.2-1.cdh5.16.2.p0.8/lib/hive-hcatalog/share/hcatalog/hive-hcatalog-core.jar;
+
+drop table student5_4.border_crossing_json;
+
+create external table student5_4.border_crossing_json
+(
+    port_name string,
+    state int,
+    port_code int,
+    border string,
+    `date` date,
+    measure int,
+    value int,
+    `location` string
+)
+ROW FORMAT SERDE
+    'org.apache.hive.hcatalog.data.JsonSerDe'
+TBLPROPERTIES (
+    'serialization.null.format' = '',
+    'skip.header.line.count' = '1')
+;
+
+LOAD DATA INPATH '/user/student5_4/border_crossing.json' INTO TABLE student5_4.border_crossing_json;
+
+select * from student5_4.border_crossing_json;
+'''
+
+После select:
+
+'''
+Bad status for request TFetchResultsReq(fetchType=0, operationHandle=TOperationHandle(hasResultSet=True, modifiedRowCount=None, operationType=0, operationId=THandleIdentifier(secret='WK\xc45\x03]D\x00\x9e<\xc0\xe8\xc0g,\xe9', guid='\xe9\x0f\x81\xb5~\xd9L$\xb9\xfd<\xbcd\x84^\xec')), orientation=4, maxRows=100): TFetchResultsResp(status=TStatus(errorCode=0, errorMessage='java.io.IOException: org.apache.hadoop.hive.serde2.SerDeException: org.codehaus.jackson.JsonParseException: Current token (VALUE_STRING) not numeric, can not use numeric value accessors\n at [Source: java.io.ByteArrayInputStream@3f204368; line: 1, column: 35]', sqlState=None, infoMessages=['*org.apache.hive.service.cli.HiveSQLException:java.io.IOException: org.apache.hadoop.hive.serde2.SerDeException: org.codehaus.jackson.JsonParseException: Current token (VALUE_STRING) not numeric, can not use numeric value accessors\n at [Source: java.io.ByteArrayInputStream@3f204368; line: 1, column: 35]:25:24', 'org.apache.hive.service.cli.operation.SQLOperation:getNextRowSet:SQLOperation.java:463', 'org.apache.hive.service.cli.operation.OperationManager:getOperationNextRowSet:OperationManager.java:294', 'org.apache.hive.service.cli.session.HiveSessionImpl:fetchResults:HiveSessionImpl.java:769', 'sun.reflect.GeneratedMethodAccessor29:invoke::-1', 'sun.reflect.DelegatingMethodAccessorImpl:invoke:DelegatingMethodAccessorImpl.java:43', 'java.lang.reflect.Method:invoke:Method.java:498', 'org.apache.hive.service.cli.session.HiveSessionProxy:invoke:HiveSessionProxy.java:78', 'org.apache.hive.service.cli.session.HiveSessionProxy:access$000:HiveSessionProxy.java:36', 'org.apache.hive.service.cli.session.HiveSessionProxy$1:run:HiveSessionProxy.java:63', 'java.security.AccessController:doPrivileged:AccessController.java:-2', 'javax.security.auth.Subject:doAs:Subject.java:422', 'org.apache.hadoop.security.UserGroupInformation:doAs:UserGroupInformation.java:1924', 'org.apache.hive.service.cli.session.HiveSessionProxy:invoke:HiveSessionProxy.java:59', 'com.sun.proxy.$Proxy21:fetchResults::-1', 'org.apache.hive.service.cli.CLIService:fetchResults:CLIService.java:462', 'org.apache.hive.service.cli.thrift.ThriftCLIService:FetchResults:ThriftCLIService.java:696', 'org.apache.hive.service.cli.thrift.TCLIService$Processor$FetchResults:getResult:TCLIService.java:1553', 'org.apache.hive.service.cli.thrift.TCLIService$Processor$FetchResults:getResult:TCLIService.java:1538', 'org.apache.thrift.ProcessFunction:process:ProcessFunction.java:39', 'org.apache.thrift.TBaseProcessor:process:TBaseProcessor.java:39', 'org.apache.hive.service.auth.TSetIpAddressProcessor:process:TSetIpAddressProcessor.java:56', 'org.apache.thrift.server.TThreadPoolServer$WorkerProcess:run:TThreadPoolServer.java:286', 'java.util.concurrent.ThreadPoolExecutor:runWorker:ThreadPoolExecutor.java:1149', 'java.util.concurrent.ThreadPoolExecutor$Worker:run:ThreadPoolExecutor.java:624', 'java.lang.Thread:run:Thread.java:748', '*java.io.IOException:org.apache.hadoop.hive.serde2.SerDeException: org.codehaus.jackson.JsonParseException: Current token (VALUE_STRING) not numeric, can not use numeric value accessors\n at [Source: java.io.ByteArrayInputStream@3f204368; line: 1, column: 35]:29:4', 'org.apache.hadoop.hive.ql.exec.FetchOperator:getNextRow:FetchOperator.java:508', 'org.apache.hadoop.hive.ql.exec.FetchOperator:pushRow:FetchOperator.java:415', 'org.apache.hadoop.hive.ql.exec.FetchTask:fetch:FetchTask.java:140', 'org.apache.hadoop.hive.ql.Driver:getResults:Driver.java:2071', 'org.apache.hive.service.cli.operation.SQLOperation:getNextRowSet:SQLOperation.java:458', '*org.apache.hadoop.hive.serde2.SerDeException:org.codehaus.jackson.JsonParseException: Current token (VALUE_STRING) not numeric, can not use numeric value accessors\n at [Source: java.io.ByteArrayInputStream@3f204368; line: 1, column: 35]:30:1', 'org.apache.hive.hcatalog.data.JsonSerDe:deserialize:JsonSerDe.java:174', 'org.apache.hadoop.hive.ql.exec.FetchOperator:getNextRow:FetchOperator.java:489', '*org.codehaus.jackson.JsonParseException:Current token (VALUE_STRING) not numeric, can not use numeric value accessors\n at [Source: java.io.ByteArrayInputStream@3f204368; line: 1, column: 35]:36:6', 'org.codehaus.jackson.JsonParser:_constructError:JsonParser.java:1292', 'org.codehaus.jackson.impl.JsonParserMinimalBase:_reportError:JsonParserMinimalBase.java:385', 'org.codehaus.jackson.impl.JsonNumericParserBase:_parseNumericValue:JsonNumericParserBase.java:399', 'org.codehaus.jackson.impl.JsonNumericParserBase:getIntValue:JsonNumericParserBase.java:254', 'org.apache.hive.hcatalog.data.JsonSerDe:extractCurrentField:JsonSerDe.java:274', 'org.apache.hive.hcatalog.data.JsonSerDe:populateRecord:JsonSerDe.java:213', 'org.apache.hive.hcatalog.data.JsonSerDe:deserialize:JsonSerDe.java:169'], statusCode=3), results=None, hasMoreRows=None)
+'''
