@@ -50,3 +50,40 @@ select * from hive_db.citation_data;
 ```
 Запрос начал выполнятся и в YARN появилось приложение:
 ![Скриншот CLOUDERA MANAGER](https://github.com/Mellok14/Hadoop/blob/master/Lesson_04/App2.png)
+
+Посмотрим на размер данных:
+
+```
+[student5_4@manager ~]$ hdfs dfs -du -h -s /user/student5_4/parquet_data
+77.3 G  232.3 G  /user/student5_4/parquet_data
+```
+
+Теперь создадим таблицу с компрессией:
+
+```
+SET hive.exec.compress.output=true;
+	SET parquet.compression=SNAPPY;
+
+create external table student5_4.parquet_data_compress (
+    oci string,
+    citing string,
+    cited string,
+    creation string,
+    timespan string,
+    journal_sc string,
+    author_sc string
+)
+STORED AS PARQUET
+LOCATION '/user/student5_4/parquet_data_compress';
+```
+Заполним данными из большой таблицы hive_db.citation_data
+
+```
+insert into student5_4.parquet_data_compress
+select * from hive_db.citation_data;
+```
+Запрос начал выполнятся и в YARN появилось приложение:
+![Скриншот CLOUDERA MANAGER](https://github.com/Mellok14/Hadoop/blob/master/Lesson_04/App3.png)
+
+
+
