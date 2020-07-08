@@ -48,4 +48,5 @@ LOCATION '/user/student5_4/parquet_data';
 insert into student5_4.parquet_data
 select * from hive_db.citation_data;
 ```
-
+Запрос начал выполнятся и в YARN появилось приложение:
+![Скриншот CLOUDERA MANAGER](https://github.com/Mellok14/Hadoop/blob/master/Lesson_04/App2.png)
