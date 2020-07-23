@@ -88,13 +88,6 @@ Flume5_4.sinks.HDFSsink.channel = MemChannel
 drwxr-xr-x   - flume flume          0 2020-07-23 18:31 /flume/flume_5_4/exec_hdfs_v2/date=20-07-23
 -rw-r--r--   3 flume flume        960 2020-07-23 18:31 /flume/flume_5_4/exec_hdfs_v2/date=20-07-23/events.1595529036603
 ```
-Также спустя некоторое время:
-```
-[student5_4@node3 log]$ hdfs dfs -ls -R /flume/flume_5_4/exec_hdfs/
-drwxr-xr-x   - flume flume          0 2020-07-23 15:01 /flume/flume_5_4/exec_hdfs/20-07-23
--rw-r--r--   3 flume flume        988 2020-07-23 14:34 /flume/flume_5_4/exec_hdfs/20-07-23/events.1595514820139
--rw-r--r--   3 flume flume        284 2020-07-23 15:01 /flume/flume_5_4/exec_hdfs/20-07-23/events.1595516463508
-```
 
 Поверх дынных в HDFS создадим таблицу в Hive:
 ```
