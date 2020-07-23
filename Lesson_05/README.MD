@@ -70,7 +70,7 @@ Flume5_4.sources.Execsource.interceptors.TimestampInterceptor.type = timestamp
 
 # Describing/Configuring the HDFS sink
 Flume5_4.sinks.HDFSsink.type = hdfs
-Flume5_4.sinks.HDFSsink.hdfs.path = /flume/flume_5_4/exec_hdfs/%y-%m-%d/
+Flume5_4.sinks.HDFSsink.hdfs.path = /flume/flume_5_4/exec_hdfs_v2/date=%y-%m-%d/
 Flume5_4.sinks.HDFSsink.hdfs.filePrefix = events
 
 # Describing/Configuring the channel
@@ -84,9 +84,9 @@ Flume5_4.sinks.HDFSsink.channel = MemChannel
 ```
 Убедимся что все работает корректно и файлы создаются:
 ```
-[student5_4@node3 log]$ hdfs dfs -ls -R /flume/flume_5_4/exec_hdfs/
-drwxr-xr-x   - flume flume          0 2020-07-23 14:34 /flume/flume_5_4/exec_hdfs/20-07-23
--rw-r--r--   3 flume flume        988 2020-07-23 14:34 /flume/flume_5_4/exec_hdfs/20-07-23/events.1595514820139
+[student5_4@manager ~]$ hdfs dfs -ls -R /flume/flume_5_4/exec_hdfs_v2/
+drwxr-xr-x   - flume flume          0 2020-07-23 18:31 /flume/flume_5_4/exec_hdfs_v2/date=20-07-23
+-rw-r--r--   3 flume flume        960 2020-07-23 18:31 /flume/flume_5_4/exec_hdfs_v2/date=20-07-23/events.1595529036603
 ```
 Также спустя некоторое время:
 ```
@@ -98,17 +98,20 @@ drwxr-xr-x   - flume flume          0 2020-07-23 15:01 /flume/flume_5_4/exec_hdf
 
 Поверх дынных в HDFS создадим таблицу в Hive:
 ```
-CREATE EXTERNAL TABLE student5_4.flume_logs (
+CREATE EXTERNAL TABLE student5_4.flume_logs_v4(
     text string
 )
 PARTITIONED BY (`date` string)
 ROW FORMAT DELIMITED
 FIELDS TERMINATED BY '\t'
-STORED AS TEXTFILE
-LOCATION '/flume/flume_5_4/exec_hdfs/';
+LOCATION '/flume/flume_5_4/exec_hdfs_v2/';
 
-#set hive.msck.path.validation=ignore;
-msck repair table flume_logs;
+set hive.msck.path.validation = ignore;
+msck repair table flume_logs_v4;
 
-select * from flume_logs;
+select * from flume_logs_v4;
 ```
+Результат:
+| flume_logs_v4.text                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | flume_logs_v4.date |
+|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------|
+| SEQ?!org.apache.hadoop.io.LongWritable"org.apache.hadoop.io.BytesWritable??????Y??6�?��5�?X�y�@???M???????s\|��O???AJul 23 15:01:01 node3 systemd: Starting Session 580 of user root.???L???????s\|��O???@Jul 23 16:01:01 node3 systemd: Started Session 581 of user root.???M???????s\|��O???AJul 23 16:01:01 node3 systemd: Starting Session 581 of user root.???L???????s\|��O???@Jul 23 17:01:01 node3 systemd: Started Session 582 of user root.???M???????s\|��O???AJul 23 17:01:01 node3 systemd: Starting Session 582 of user root.???L???????s\|��O???@Jul 23 18:01:01 node3 systemd: Started Session 583 of user root.???M???????s\|��O???AJul 23 18:01:01 node3 systemd: Starting Session 583 of user root.???F???????s\|��O???:Jul 23 18:25:04 node3 systemd-logind: Removed session 579.???R???????s\|��O???FJul 23 18:25:04 node3 systemd: Removed slice User Slice of student5_4.???M???????s\|��O???AJul 23 18:25:04 node3 systemd: Stopping User Slice of student5_4.����Y??6�?��5�?X�y�@ | 20-07-23           |
