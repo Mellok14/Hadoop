@@ -46,12 +46,61 @@ Found 6 items
 -rw-r--r--   3 student5_4 supergroup       1089 2020-07-21 17:52 /student5_4/tables/work/part-m-00004.avro
 ```
 
-**Для части по потоковой обработке (Flume)
-1. Создать Flume-агент с именем, соответствующим имени своего пользователя (например Flume4_20)
-**2. Создать любой Flume поток используя Flume сервис соответствующего номера.
-• Тип источника источник – exeс
-• Тип канала – memory
-• Тип слива – hdfs
-3. Создать поверх данных в hdfs таблицу через которую можно просмотреть полученные данные.
+**Для части по потоковой обработке (Flume)**
+**1. Создать Flume-агент с именем, соответствующим имени своего пользователя (например Flume4_20)**
+**2. Создать любой Flume поток используя Flume сервис соответствующего номера.**
+**• Тип источника источник – exeс**
+**• Тип канала – memory**
+**• Тип слива – hdfs**
+**3. Создать поверх данных в hdfs таблицу через которую можно просмотреть полученные данные.**
 **4. [ОБЯЗАТЕЛЬНО] Убедиться что данные поступают в слив.**
 
+Созданим новый Flume и заполним конфигурационный файл:
+```
+# Naming the components on the current agent
+Flume5_4.sources  = Execsource
+Flume5_4.channels = MemChannel
+Flume5_4.sinks    = HDFSsink
+
+# Describing/Configuring the source
+Flume5_4.sources.Execsource.type = exec
+Flume5_4.sources.Execsource.command = tail -F /var/log/messages
+Flume5_4.sources.Execsource.interceptors = TimestampInterceptor
+Flume5_4.sources.Execsource.interceptors.TimestampInterceptor.type = timestamp
+
+# Describing/Configuring the HDFS sink
+Flume5_4.sinks.HDFSsink.type = hdfs
+Flume5_4.sinks.HDFSsink.hdfs.path = /flume/flume_5_4/exec_hdfs/%y-%m-%d/
+Flume5_4.sinks.HDFSsink.hdfs.filePrefix = events
+
+# Describing/Configuring the channel
+Flume5_4.channels.MemChannel.type = memory
+Flume5_4.channels.MemChannel.capacity = 10000
+Flume5_4.channels.MemChannel.transactionCapacity = 100
+
+# Bind the source and sink to the channel
+Flume5_4.sources.Execsource.channels = MemChannel
+Flume5_4.sinks.HDFSsink.channel = MemChannel
+```
+Убедимся что все работает корректно и файлы создаются:
+```
+[student5_4@node3 log]$ hdfs dfs -ls -R /flume/flume_5_4/exec_hdfs/
+drwxr-xr-x   - flume flume          0 2020-07-23 14:34 /flume/flume_5_4/exec_hdfs/20-07-23
+-rw-r--r--   3 flume flume        988 2020-07-23 14:34 /flume/flume_5_4/exec_hdfs/20-07-23/events.1595514820139
+```
+Поверх дынных в HDFS создадим таблицу в Hive:
+```
+CREATE EXTERNAL TABLE student5_4.flume_logs (
+    text string
+)
+PARTITIONED BY (`date` string)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY '\t'
+STORED AS TEXTFILE
+LOCATION '/flume/flume_5_4/exec_hdfs/';
+
+#set hive.msck.path.validation=ignore;
+msck repair table flume_logs;
+
+select * from flume_logs;
+```
