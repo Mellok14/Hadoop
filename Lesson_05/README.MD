@@ -89,7 +89,7 @@ drwxr-xr-x   - flume flume          0 2020-07-23 18:31 /flume/flume_5_4/exec_hdf
 -rw-r--r--   3 flume flume        960 2020-07-23 18:31 /flume/flume_5_4/exec_hdfs_v2/date=20-07-23/events.1595529036603
 ```
 
-Поверх дынных в HDFS создадим таблицу в Hive:
+Поверх данных в HDFS создадим таблицу в Hive:
 ```
 CREATE EXTERNAL TABLE student5_4.flume_logs_v4(
     text string
